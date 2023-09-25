@@ -18,7 +18,7 @@ def main():
     
     st.title("Justin")
 
-    openai.api_key = "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"
+    openai.api_key = "you key"
 
     query = st.chat_input("Enter your words")
 
