@@ -1,0 +1,5 @@
+sqlalchemy
+mysql-connector-python
+vectordb
+docarray
+faiss-cpu
