@@ -1,5 +1,5 @@
 from LLM.embedding import get_embedding
-from database import add_project_db, get_project_db_id, get_all_projects_db
+from database import add_project_db, get_project_db_id, get_all_projects_db, update_project_db
 from .utils import preprocess_content
 from prompt import format_response
 
@@ -57,3 +57,19 @@ def show_all_projects(session):
             ```
             """
     return message
+
+def search_project_name(session, name, nindex):
+    name_arr = preprocess_content(name)
+    scores, idxs = search_project(name_arr, nindex)
+
+    for i, score in enumerate(scores):
+        if score[0] > 0.9:
+            projects = get_project_db_id(session, int(idxs[i]) + 1)
+            res = [pro.id for pro in projects]
+            return res[0]
+    return -1
+
+def update_project(session, project_name, **kwargs):
+    project_id = search_project_name(project_name)
+    if project_id != -1:
+        update_project_db(session, project_id, **kwargs["values"])

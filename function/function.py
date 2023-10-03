@@ -26,7 +26,6 @@ function_list = [
         "required": ["name", "description"],
         },
     },
-
     {
         "name": "show_all_projects",
         "description": "show all the projects' name",
@@ -36,6 +35,47 @@ function_list = [
             "required": [],
         },
     },
+
+    {
+        "name": "update_project",
+        "description": "update the detail of the specific project",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the project",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The description of the project",
+                },
+                "start_time": {
+                    "type": "string",
+                    "description": "The start time of the project",
+                },
+                "end_time": {
+                    "type": "string",
+                    "description": "The end time of the project",
+                },
+                "status": {
+                    "type": "string",
+                    "description": """The status of the project, \
+                                   change the description of status into number 0 ~ 1 \
+                                   The relation is below: 
+
+                                   ```
+                                   NEVER START: 0 \
+                                   WORKING: 1 \
+                                   DONE: 2
+                                   ```
+                                   """,
+                },
+            },
+            "required": ["name"],
+        },
+    },
+
     {
         "name": "add_task",
         "description": "add task which must be related to one project after user confirm creatation down",
@@ -68,6 +108,50 @@ function_list = [
             },
         "required": ["project_name"],
         },
+    },
+
+    {
+        "name": "update_task",
+        "description": "update the specific task which is belong to the speific project",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "The description of the task",
+                },
+                "project_name": {
+                    "type": "string",
+                    "description": "The name of the related project",
+                },
+                "start_time": {
+                    "type": "string",
+                    "description": "The start time of the task",
+                },
+                "end_time": {
+                    "type": "string",
+                    "description": "The end time of the task",
+                },
+                "duration": {
+                    "type": "string",
+                    "description": "The duration of the task, and converting all units to minutes ",
+                },
+                "status": {
+                    "type": "string",
+                    "description": """The status of the task, \
+                                   change the description of status into number 0 ~ 1 \
+                                   The relation is below: 
+
+                                   ```
+                                   NEVER START: 0 \
+                                   WORKING: 1 \
+                                   DONE: 2
+                                   ```
+                                   """,
+                },
+            },
+        "required": ["description", "project_name"],
+        }
     },
 
     {
@@ -115,4 +199,3 @@ function_list = [
         }
     },
 ]
-

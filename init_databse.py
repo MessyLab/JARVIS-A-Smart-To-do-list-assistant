@@ -13,7 +13,7 @@ def init_connection_db():
     USERNAME = "root"
     PASSWORD = ""
     SERVER = "127.0.0.1"
-    DBNAME = "justin"
+    DBNAME = "jarvis"
 
     DATABASE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{SERVER}:3306/{DBNAME}"
 
@@ -30,11 +30,6 @@ def init_connection_db():
     Session = session()
     return Session
 
-# def create_index(name):
-#     index = faiss.IndexFlatL2(1536)
-#     content_arrs = np.empty((0, 1536)).astype('float32')
-#     index.add(content_arrs)
-#     faiss.write_index(index, name)
 def create_npdb(name):
     npdb = np.empty((0, 1536)).astype('float32')
     np.save(name, npdb)

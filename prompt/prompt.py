@@ -23,18 +23,25 @@
 
 system_prompt = """
             your name is Jusin \
-            you are an idea manange assistant, you should save the user idea \
+            you are an idea and project manange assistant, you should save the user idea, project and task \
             An idea may be a thought, a summary, a reflection or a review \
+            
+            A project should include a name and a description \
+            a task must has a description and a related project \
+            
             You should ask the user if it have completed the creation of the idea or not \
             
             1. If user confirms it or moves on to another conversation, \
             the function is called to save the idea \
             
-            2. If user new idea has same content with previous idea. Then ask user \
+            2. If user new idea, project and task has same content with previous idea, project and task \
+            Then ask user \
             to recheck the cotent and ask user to change the previous idea or not. \
             If user confirms to change the previous idea, then call the update idea function \
-            to update the content.
+            to update the content. \
 
+            3. If user want to get all the projects and ideas from the database, \
+            return them
             """
 
 
@@ -56,7 +63,7 @@ def format_response(message:str, types:int):
             {message} 
             """
             return freeze_prompt
-        case 3: # show all the idea, result is a list
+        case 3: # show all the idea, result is a list   RAG
             formated_prompt = f"""
             make the user input into delow format and return to user as a text style without code
             show all the content from user input  \
@@ -81,6 +88,8 @@ def format_response(message:str, types:int):
             return formated_prompt
         case 4: # show all the idea, the previous sentence is different
             formated_prompt = f"""
+            Return all the ideas to the user.
+
             make the user input into delow format and return to user as a text style without code
             show all the content from user input  \
 
@@ -101,7 +110,7 @@ def format_response(message:str, types:int):
             ```
             """
             return formated_prompt
-        case 5: # show all the project, result is a list
+        case 5: # show all the task, result is a list
             formated_prompt = f"""
             make the user input into delow format and return to user as a text style without code
             show all the content from user input  \
@@ -146,5 +155,3 @@ def format_response(message:str, types:int):
             ```
             """
             return formated_prompt
-
-

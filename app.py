@@ -6,8 +6,8 @@ import openai
 from database import add_chat_db
 import function.function as F
 from function.function_idea import add_idea, update_idea, show_all_ideas
-from function.function_project import add_project, show_all_projects
-from function.function_task import add_task, show_all_tasks
+from function.function_project import add_project, show_all_projects, update_project
+from function.function_task import add_task, show_all_tasks, update_task
 import json
 from prompt import format_response
 
@@ -16,9 +16,9 @@ def main():
     Session = init_connection_db()
     idea_index, proj_n_index, proj_d_index, task_index = init_connection_vb()
     
-    st.title("Justin")
+    st.title("JARVIS")
 
-    openai.api_key = "you key"
+    openai.api_key = ""
 
     query = st.chat_input("Enter your words")
 
@@ -26,14 +26,12 @@ def main():
         st.session_state["messages"].append(
             {"role": "user", "content": query}
         )
-        print(22222222)
         first_respond = openai.ChatCompletion.create(
             model="gpt-3.5-turbo-0613",
             messages=st.session_state['messages'],
             functions=F.function_list,
             function_call="auto",
         )
-        print(333333333)
 
         st.session_state['past'].append(query)
         function_call = first_respond.choices[0].message.get('function_call')
@@ -47,6 +45,8 @@ def main():
                 "add_task": add_task,
                 "show_all_projects": show_all_projects,
                 "show_all_tasks": show_all_tasks,
+                "update_project": update_project,
+                "update_task": update_task,
             }
 
             method_name, method_args = function_call.get('name'), function_call.get('arguments')
@@ -56,7 +56,6 @@ def main():
             method_to_call = available_functions[method_name]
             print(method_name)
             if method_name == "show_all_ideas" or method_name == "show_all_projects":
-                print(111111)
                 method_result = method_to_call(session=Session)
             elif method_name == "add_idea":
                 method_result = method_to_call(
@@ -65,7 +64,6 @@ def main():
                     index=idea_index,
                 )
             elif method_name == "update_idea":
-                print(method_args_dict)
                 method_result = method_to_call(
                     session=Session,
                     previous_idea=method_args_dict["previous_idea"],
@@ -81,7 +79,6 @@ def main():
                     dindex=proj_d_index,
                 )
             elif method_name == "add_task":
-                print(method_args_dict)
                 method_result = method_to_call(
                     session=Session,
                     project_name=method_args_dict["project_name"],
@@ -90,12 +87,30 @@ def main():
                     pnindex=proj_n_index,
                 )
             elif method_name == "show_all_tasks":
+                print(method_args_dict)
                 method_result = method_to_call(
                     session=Session,
                     project_name=method_args_dict["project_name"],
                     pnindex=proj_n_index,
                 )
+            elif method_name == "update_project":
+                method_result = method_to_call(
+                    session=Session,
+                    project_name=method_args_dict["project_name"],
+                    values=method_args_dict,
+                )
+            elif method_name == "update_task":
+                print(method_args_dict)
+                method_result = method_to_call(
+                    session=Session,
+                    description=method_args_dict["description"],
+                    project_name=method_args_dict["project_name"],
+                    tindex=task_index,
+                    pnindex=proj_n_index,
+                    values=method_args_dict,
+                )
 
+            print(method_result)
             st.session_state['messages'].append(
                 {"role": "user", "content": method_result}
             )
@@ -103,7 +118,9 @@ def main():
             second_response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-0613",
                 messages=st.session_state['messages'],
+                # temperature=0,
             )
+            print(second_response.choices[0].message.get('content'))
 
             st.session_state['generated'].append(second_response.choices[0].message.get('content'))
             st.session_state['messages'].append(

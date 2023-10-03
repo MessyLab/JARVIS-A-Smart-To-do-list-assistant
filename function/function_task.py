@@ -1,8 +1,8 @@
 from LLM.embedding import get_embedding
-from database import add_task_db, get_task_db, get_project_db_id, get_porject_db_obj_id, get_tasks_for_project_db
+from database import add_task_db, get_task_db, get_project_db_id, get_porject_db_obj_id, get_tasks_for_project_db, update_task_db
 from .utils import preprocess_content
 from prompt import format_response
-from .function_project import search_project
+from .function_project import search_project, search_project_name
 
 def search_task(ndesc_arr, index):
     scores, idxs = [[0]], [[-1]]
@@ -11,17 +11,6 @@ def search_task(ndesc_arr, index):
         scores, idxs = index.search(ndesc_arr, 1)
 
     return scores, idxs
-
-def search_project_name(session, name, nindex):
-    name_arr = preprocess_content(name)
-    scores, idxs = search_project(name_arr, nindex)
-
-    for i, score in enumerate(scores):
-        if score[0] > 0.9:
-            projects = get_project_db_id(session, int(idxs[i]) + 1)
-            res = [pro.id for pro in projects]
-            return res[0]
-    return -1
 
 def add_task(session, description, project_name, tindex, pnindex):
     ndesc_arr = preprocess_content(description)
@@ -48,34 +37,46 @@ def add_task(session, description, project_name, tindex, pnindex):
 def show_all_tasks(session, project_name, pnindex):
     project_id = search_project_name(session, project_name, pnindex)
     project = get_porject_db_obj_id(session, project_id)
-    name = project.name
-    tasks = get_tasks_for_project_db(session, project_id)
-    tasks_mes = []
-    for task in tasks:
-        if task.status == 0:
-            tasks_mes.append((task.description, "never start"))
-        elif task.status == 1:
-            tasks_mes.append((task.description, "Working"))
-        else:
-            tasks_mes.append((task.description, "Down"))
-    message = f"""
-            make the user input into delow format and return to user as a text style without code
-            show all the content from user input  \
+    if project:
+        name = project.name
+        tasks = get_tasks_for_project_db(session, project_id)
+        tasks_mes = []
+        for task in tasks:
+            if task.status == 0:
+                tasks_mes.append((task.description, "never start"))
+            elif task.status == 1:
+                tasks_mes.append((task.description, "Working"))
+            else:
+                tasks_mes.append((task.description, "Done"))
+        message = f"""
+                make the user input into delow format and return to user as a text style without code
+                show all the content from user input  \
 
-            user input {tasks_mes} \
+                user input {tasks_mes} \
 
-            n is the length of message. \
+                n is the length of message. \
 
-            Before and after the user input, you can say somthing like, \
+                Before and after the user input, you can say somthing like, \
 
-            `All the task related to project $${name}$$ \
-            `
+                `All the task related to project $${name}$$ \
+                `
 
-            ```
-            1. tasks_mes[0][0], the status of the task is tasks_mes[0][1] \
-            ...       \
-            n. tasks_mes[n][0], the status of the task is tasks_mes[n][1] \
-            
-            ```
-            """
-    return message
+                ```
+                1. tasks_mes[0][0], the status of the task is tasks_mes[0][1] \
+                ...       \
+                n. tasks_mes[n][0], the status of the task is tasks_mes[n][1] \
+                
+                ```
+                """
+        return message
+    else:
+        return "Sorry I can not find the project what you want"
+
+def update_task(session, description, project_name, tindex, pnindex, **kwargs):
+    task_desc_arr = preprocess_content(description)
+    project_id = search_project_name(session, project_name, pnindex)
+    print("project id", project_id)
+    task_id = search_task(task_desc_arr, tindex)[1][0]
+    print("task id", task_id)
+    update_task_db(session, int(task_id[0] + 1), project_id, **kwargs['values'])
+    return "update the task"

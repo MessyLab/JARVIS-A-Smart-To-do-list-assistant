@@ -55,32 +55,6 @@ def update_idea(session, previous_idea, new_idea, index):
         message = "There is no similar idea to update"
         return format_response(message, 2)
 
-    
-        
-# def update_idea(session, content, index):
-#     # where to get id and how to input it ?
-#     content_arr = preprocess_content(content)
-#     scores, idxs = search_idea(content_arr, index)
-#     for i, score in enumerate(scores):
-#         if score[0] > 0.9:
-#             id = int(idxs[i] + 1)
-
-#     try:
-#         # update index
-#         content_arr = preprocess_content(content)
-#         index.update(id, content_arr)
-
-#         print("finish updating the index")
-#         # update idea db
-#         update_idea_db(session, id, content)
-        
-#         print("Update the previous idea")
-#         message = "Well, I have change the previous idea"
-#         return format_response(message, 2)
-#     except:
-#         message = "There is no similar idea to update"
-#         return format_response(message, 2)
-
 def show_all_ideas(session, **kwargs):
     ideas = get_all_ideas_db(session)
     conts = [idea.content for i, idea in enumerate(ideas)]
