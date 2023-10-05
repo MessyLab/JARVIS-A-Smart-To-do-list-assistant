@@ -1,72 +1,56 @@
 import streamlit as st
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from database import create_database, Base, add_chat_db, Index
+from database import create_database, Base, IndexDB
 import faiss
 import os
 from prompt.prompt import system_prompt
 import numpy as np
 import threading
+from config import ConfigParser
 
-@st.cache_resource
-def init_connection_db():
-    USERNAME = "root"
-    PASSWORD = ""
-    SERVER = "127.0.0.1"
-    DBNAME = "jarvis"
+class InitUtils:
+    def __init__(self) -> None:
+        self.config = ConfigParser()
 
-    DATABASE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{SERVER}:3306/{DBNAME}"
+    def init_connection_db(self):
+        USERNAME = self.config.get(key='mysql_database')['user_name']
+        PASSWORD = self.config.get(key='mysql_database')['password']
+        SERVER = self.config.get(key='mysql_database')['server']
+        DBNAME = self.config.get(key='mysql_database')['dbname']
 
-    try:
-        engine = create_engine(DATABASE_URL)
-        connection = engine.connect()
-        connection.close()
-    except:
-        create_database(SERVER, USERNAME, PASSWORD, DBNAME)
-        engine = create_engine(DATABASE_URL)
+        DATABASE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{SERVER}:3306/{DBNAME}"
 
-    Base.metadata.create_all(engine)
-    session = sessionmaker(bind=engine)
-    Session = session()
-    return Session
+        try:
+            engine = create_engine(DATABASE_URL)
+            connection = engine.connect()
+            connection.close()
+        except:
+            create_database(SERVER, USERNAME, PASSWORD, DBNAME)
+            engine = create_engine(DATABASE_URL)
 
-def create_npdb(name):
-    npdb = np.empty((0, 1536)).astype('float32')
-    np.save(name, npdb)
+        Base.metadata.create_all(engine)
+        session = sessionmaker(bind=engine)
+        Session = session()
+        return Session
 
-def create_index_db():
-    idea_path = "index_db/ideas_test.npy"
-    create_npdb(idea_path)
-    pro_n_path = "index_db/project_name_test.npy"
-    pro_d_path = "index_db/project_des_test.npy"
-    create_npdb(pro_n_path)
-    create_npdb(pro_d_path)
-    task_path = "index_db/task_test.npy"
-    create_npdb(task_path)
-    print("Create the vector npy")
-
-def init_connection_vb():
-    idea_path = "index_db/ideas_test.npy"
-    pro_n_path = "index_db/project_name_test.npy"
-    pro_d_path = "index_db/project_des_test.npy"
-    task_path = "index_db/task_test.npy"
-    if not os.path.isfile(idea_path):
-        thread = threading.Thread(target=create_index_db)
-        thread.start()
-        thread.join()
-    idea_index = Index(idea_path)
-    pro_n_index = Index(pro_n_path)
-    pro_b_index = Index(pro_d_path)
-    task_index = Index(task_path)
-    return idea_index, pro_n_index, pro_b_index, task_index
-    
-def init_streamlit():
-    if 'generated' not in st.session_state:
-        st.session_state['generated'] = []
-    if 'past' not in st.session_state:
-        st.session_state['past'] = []
-    if 'messages' not in st.session_state:
-        st.session_state['messages'] = [{
-            'role':'system', 
-            'content': system_prompt
-            }]
+    def init_connection_vb(self):
+        index_dir = self.config.get(key='local_vector_database')['index_dir']
+        idea_path = os.path.join(index_dir, self.config.get(key='local_vector_database')['idea_vdb_name'])
+        proj_n_path = os.path.join(index_dir, self.config.get(key='local_vector_database')['project_name_vdb_name'])
+        proj_d_path = os.path.join(index_dir, self.config.get(key='local_vector_database')['project_description_vdb_name'])
+        task_path = os.path.join(index_dir, self.config.get(key='local_vector_database')['task_description_vdb_name'])
+        indexdb = IndexDB(idea_path, proj_n_path, proj_d_path, task_path)
+        return indexdb
+        
+    def init_streamlit(self):
+        if 'generated' not in st.session_state:
+            st.session_state['generated'] = []
+        if 'past' not in st.session_state:
+            st.session_state['past'] = []
+        if 'messages' not in st.session_state:
+            st.session_state['messages'] = [{
+                'role':'system', 
+                'content': system_prompt,
+                }] if system_prompt else ""
+            

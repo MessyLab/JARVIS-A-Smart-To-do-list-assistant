@@ -4,6 +4,10 @@ This is an intelligent to-do list assistant, integrated with the capabilities of
 
 ![](./resource/structure.png)
 
+
+shot term memory is based on streamlit message to storage
+long term memory is in database
+
 The function includes:
 
 1. Add project and task, the task is

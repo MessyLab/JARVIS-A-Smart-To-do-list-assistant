@@ -1,0 +1,24 @@
+config:
+  openai:
+    api_key: "repalce ypur openai api key"
+    chat_model: "gpt-3.5-turbo-0613"
+    temperature: 0.1
+    embedding_model: "text-embedding-ada-002"
+    proxy: ""
+
+  mysql_database:
+    user_name: "root"
+    password: "repalce your local mysql password"
+    server: "127.0.0.1"
+    dbname: "jarvis"
+
+  local_vector_database:
+    index_dir: "index_db"
+    idea_vdb_name: "ideas_test.npy"
+    project_name_vdb_name: "project_name_test.npy"
+    project_description_vdb_name: "project_des_test.npy"
+    task_description_vdb_name: "task_des_test.npy"
+
+  pinecone:
+    api_key: "type in your api key"
+    environment: ""

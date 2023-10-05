@@ -1,134 +1,66 @@
 import streamlit as st
 from streamlit_chat import message
 from database import Index
-from init_databse import init_connection_db, init_connection_vb, init_streamlit
+from init_databse import InitUtils
 import openai
-from database import add_chat_db
 import function.function as F
-from function.function_idea import add_idea, update_idea, show_all_ideas
-from function.function_project import add_project, show_all_projects, update_project
-from function.function_task import add_task, show_all_tasks, update_task
+from function import available_functions
 import json
 from prompt import format_response
+from LLM import OpenAILLM
+from utils import FunctionExcHelp
+
 
 def main():
-    init_streamlit()
-    Session = init_connection_db()
-    idea_index, proj_n_index, proj_d_index, task_index = init_connection_vb()
+    init_utils = InitUtils()
+    init_utils.init_streamlit()
+
+    Session = init_utils.init_connection_db()
+    indexdb = init_utils.init_connection_vb()
     
     st.title("JARVIS")
-
-    openai.api_key = ""
-
     query = st.chat_input("Enter your words")
 
+    chat_model = OpenAILLM()
+
     if query:
-        st.session_state["messages"].append(
-            {"role": "user", "content": query}
-        )
-        first_respond = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
-            messages=st.session_state['messages'],
-            functions=F.function_list,
-            function_call="auto",
-        )
+        st.session_state["messages"].append({"role": "user", "content": query})
+
+        first_respond = chat_model.get_response(messages=st.session_state['messages'],
+                                                functions=F.function_list)
 
         st.session_state['past'].append(query)
-        function_call = first_respond.choices[0].message.get('function_call')
+
+        function_call = first_respond.get('function_call')
 
         if function_call:
-            available_functions = {
-                "add_idea": add_idea,
-                "update_idea": update_idea,
-                "show_all_ideas": show_all_ideas,
-                "add_project": add_project,
-                "add_task": add_task,
-                "show_all_projects": show_all_projects,
-                "show_all_tasks": show_all_tasks,
-                "update_project": update_project,
-                "update_task": update_task,
-            }
-
+            
             method_name, method_args = function_call.get('name'), function_call.get('arguments')
 
             # call function
             method_args_dict = json.loads(method_args)
-            method_to_call = available_functions[method_name]
-            print(method_name)
-            if method_name == "show_all_ideas" or method_name == "show_all_projects":
-                method_result = method_to_call(session=Session)
-            elif method_name == "add_idea":
-                method_result = method_to_call(
-                    session=Session,
-                    content=method_args_dict["content"],
-                    index=idea_index,
-                )
-            elif method_name == "update_idea":
-                method_result = method_to_call(
-                    session=Session,
-                    previous_idea=method_args_dict["previous_idea"],
-                    new_idea=method_args_dict["new_idea"],
-                    index=idea_index,
-                )
-            elif method_name == "add_project":
-                method_result = method_to_call(
-                    session=Session,
-                    name=method_args_dict["name"],
-                    description=method_args_dict["description"],
-                    nindex=proj_n_index,
-                    dindex=proj_d_index,
-                )
-            elif method_name == "add_task":
-                method_result = method_to_call(
-                    session=Session,
-                    project_name=method_args_dict["project_name"],
-                    description=method_args_dict["description"],
-                    tindex=task_index,
-                    pnindex=proj_n_index,
-                )
-            elif method_name == "show_all_tasks":
-                print(method_args_dict)
-                method_result = method_to_call(
-                    session=Session,
-                    project_name=method_args_dict["project_name"],
-                    pnindex=proj_n_index,
-                )
-            elif method_name == "update_project":
-                method_result = method_to_call(
-                    session=Session,
-                    project_name=method_args_dict["project_name"],
-                    values=method_args_dict,
-                )
-            elif method_name == "update_task":
-                print(method_args_dict)
-                method_result = method_to_call(
-                    session=Session,
-                    description=method_args_dict["description"],
-                    project_name=method_args_dict["project_name"],
-                    tindex=task_index,
-                    pnindex=proj_n_index,
-                    values=method_args_dict,
-                )
+            function_help = FunctionExcHelp(session=Session, 
+                                            method_name=method_name, 
+                                            method_args=method_args_dict,
+                                            indexdb=indexdb
+            )
+            
+            method_result = function_help.run()
 
-            print(method_result)
             st.session_state['messages'].append(
                 {"role": "user", "content": method_result}
             )
 
-            second_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0613",
-                messages=st.session_state['messages'],
-                # temperature=0,
-            )
-            print(second_response.choices[0].message.get('content'))
+            second_response = chat_model.get_response(messages=st.session_state['messages'])
+            print(second_response)
 
-            st.session_state['generated'].append(second_response.choices[0].message.get('content'))
+            st.session_state['generated'].append(second_response.get('content'))
             st.session_state['messages'].append(
-                {"role": "assistant", "content": second_response.choices[0].message.get('content')}
+                {"role": "assistant", "content": second_response.get('content')}
             )
 
         else:
-            content = first_respond.choices[0].message.get('content')
+            content = first_respond.get('content')
             st.session_state['generated'].append(content)
             st.session_state['messages'].append(
                 {"role": "assistant", "content": content}
