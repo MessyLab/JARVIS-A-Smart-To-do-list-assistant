@@ -38,6 +38,24 @@ pip install -r requirements.txt  # install
 
 * First of all, you must start MySQL with your password.
 
+* replace some parametres in [config.yaml](config/config.yaml)
+
+    * openai api key like "sk-xxxxxxx"
+
+    ```Python
+    config:
+        openai:
+        api_key: "repalce ypur openai api key"
+    ```
+
+    * MySQL password which is same with starting MySQL password.
+
+    ```Python
+    mysql_database:
+        user_name: "root"
+        password: "repalce your local mysql password"
+    ```
+
 * start assistant with streamlit and try it.
 
 ```bash
