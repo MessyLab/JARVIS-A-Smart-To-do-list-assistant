@@ -4,3 +4,5 @@ vectordb
 docarray
 faiss-cpu
 streamlit
+streamlit-chat
+openai
