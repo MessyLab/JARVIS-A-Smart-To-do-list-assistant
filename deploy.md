@@ -45,7 +45,7 @@ pip install -r requirements.txt  # install
     ```Python
     config:
         openai:
-        api_key: "repalce ypur openai api key"
+        api_key: "replace ypur openai api key"
     ```
 
     * MySQL password which is same with starting MySQL password.
@@ -53,7 +53,7 @@ pip install -r requirements.txt  # install
     ```Python
     mysql_database:
         user_name: "root"
-        password: "repalce your local mysql password"
+        password: "replace your local mysql password"
     ```
 
 * start assistant with streamlit and try it.

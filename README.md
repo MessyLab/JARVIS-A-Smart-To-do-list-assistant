@@ -10,4 +10,18 @@ long term memory is in database
 
 The function includes:
 
-1. Add project and task, the task is
+1. Add a new project and show all the projects: 
+
+![](resource/project.gif)
+
+2. Add a new task for project and show all the tasks in this project:
+
+![](resource/task.gif)
+
+3. update project and update some tasks in project:
+
+![](resource/update.gif)
+
+4. Add a new idea, show all the ideas and update the idea when getting similar idea:
+
+![](resource/idea.gif)
