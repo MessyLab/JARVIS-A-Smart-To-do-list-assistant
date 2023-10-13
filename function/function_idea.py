@@ -14,7 +14,9 @@ class FunctionIdea:
 
         return scores, idxs
 
-    def add_idea(self, session, content, index):
+    def add_idea(self, session, indexdb, method_args_dict):
+        content = method_args_dict["content"]
+        index = indexdb.idea_index
         content_arr = preprocess_content(content)
         scores, idxs = self.__search_idea(content_arr, index)
         print(scores, idxs)
@@ -32,7 +34,12 @@ class FunctionIdea:
                 message = "I'll put the idea on the record, any other ideas"
                 return format_response(message, 1)
             
-    def update_idea(self, session, previous_idea, new_idea, index):
+       
+    def update_idea(self, session, indexdb, method_args_dict ):
+        previous_idea = method_args_dict["previous_idea"]
+        new_idea = method_args_dict["new_idea"]
+        index = self.indexdb.idea_index,
+        
         previous_arr = preprocess_content(previous_idea)
         scores, idxs = self.__search_idea(previous_arr, index)
         print(scores)
@@ -59,7 +66,7 @@ class FunctionIdea:
             message = "There is no similar idea to update"
             return format_response(message, 2)
 
-    def show_all_ideas(self, session, **kwargs):
+    def show_all_ideas(self, session, indexdb, method_args_dict):
         ideas = get_db_function.get_all_ideas_db(session)
         conts = [idea.content for i, idea in enumerate(ideas)]
         message = f"""{conts}"""

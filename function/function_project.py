@@ -15,11 +15,13 @@ class FunctionProj:
 
         return scores, idxs
 
-    def add_project(self, session, name, description, nindex, dindex):
+    def add_project(self, session, indexdb, method_args_dict):
+        name = method_args_dict['name']
+        description = method_args_dict['description']
         name_arr = preprocess_content(name)
         des_arr = preprocess_content(description)
         # nscores, nidxs = search_project(name_arr, nindex)
-        scores, idxs = self.search_project(des_arr, dindex)
+        scores, idxs = self.search_project(des_arr, indexdb.proj_d_index)
 
         for i, score in enumerate(scores):
             if score[0] > 0.89:
@@ -28,13 +30,13 @@ class FunctionProj:
                 return format_response(res, 3)
             else:
                 add_db_function.add_project_db(session, name, description)
-                nindex.add(name_arr)
-                dindex.add(des_arr)
+                indexdb.proj_n_index.add(name_arr)
+                indexdb.proj_d_index.add(des_arr)
                 print("save a project")
                 message = "I'll put the project on the project list, any other project"
                 return format_response(message, 1)
-            
-    def show_all_projects(self, session):
+    
+    def show_all_projects(self, session, indexdb, method_args_dict):
         """return all projects' name
         """
         projects = get_db_function.get_all_projects_db(session)
@@ -72,8 +74,17 @@ class FunctionProj:
                 res = [pro.id for pro in projects]
                 return res[0]
         return -1
-
-    def update_project(self, session, project_name, **kwargs):
-        project_id = self.search_project_name(project_name)
+    
+    def update_project(self, session, indexdb, method_args_dict):
+        
+        project_name = method_args_dict["name"]
+        project_description = method_args_dict["description"]
+        des_arr = preprocess_content(project_description)
+        index = indexdb.proj_n_index
+        print(index)
+        project_id = self.search_project_name(session, project_name, index)
         if project_id != -1:
-            update_db_fucntion.update_project_db(session, project_id, **kwargs["values"])
+            update_db_fucntion.update_project_db(session, project_id, **method_args_dict)
+            
+            # proj_d_index 更新
+            indexdb.proj_d_index.update(project_id-1, des_arr)

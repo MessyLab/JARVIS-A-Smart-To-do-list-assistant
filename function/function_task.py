@@ -15,8 +15,14 @@ class FunctionTask:
             scores, idxs = index.search(ndesc_arr, 1)
 
         return scores, idxs
-
-    def add_task(self, session, description, project_name, tindex, pnindex):
+    
+    def add_task(self, session, indexdb, method_args_dict ):
+        
+        description = method_args_dict["description"]
+        project_name = method_args_dict["project_name"]
+        tindex = indexdb.task_index
+        pnindex = indexdb.proj_n_index
+        
         ndesc_arr = preprocess_content(description)
         scores, idxs = self.search_task(ndesc_arr, tindex)
         for i, score in enumerate(scores):
@@ -37,8 +43,11 @@ class FunctionTask:
                     return format_response(message, 1)
         message = "I can not get the project"
         return format_response(message, 1)
-
-    def show_all_tasks(self, session, project_name, pnindex):
+        
+    def show_all_tasks(self, session, indexdb, method_args_dict):
+        project_name = method_args_dict["project_name"]
+        pnindex = indexdb.proj_n_index
+    
         project_id = self.func_proj.search_project_name(session, project_name, pnindex)
         project = get_db_function.get_porject_db_obj_id(session, project_id)
         if project:
@@ -76,11 +85,17 @@ class FunctionTask:
         else:
             return "Sorry I can not find the project what you want"
 
-    def update_task(self, session, description, project_name, tindex, pnindex, **kwargs):
+    def update_task(self, session, indexdb, method_args_dict):
+        
+        description = method_args_dict["description"]
+        project_name = method_args_dict["project_name"]
+        tindex = indexdb.task_index
+        pnindex = indexdb.proj_n_index
+        
         task_desc_arr = preprocess_content(description)
         project_id = self.func_proj.search_project_name(session, project_name, pnindex)
         print("project id", project_id)
         task_id = self.search_task(task_desc_arr, tindex)[1][0]
         print("task id", task_id)
-        update_db_fucntion.update_task_db(session, int(task_id[0] + 1), project_id, **kwargs['values'])
+        update_db_fucntion.update_task_db(session, int(task_id[0] + 1), project_id, **method_args_dict)
         return "update the task"
