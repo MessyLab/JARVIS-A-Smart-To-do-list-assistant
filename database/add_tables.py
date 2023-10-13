@@ -36,15 +36,3 @@ class AddDB:
         session.add(idea)
         session.commit()
 
-    @staticmethod
-    def update_project_db(session, project_id, new_name, new_description):
-        project = session.query(Project).filter(Project.id == project_id).first()
-        if project:
-            project.name = new_name
-            project.description = new_description
-            session.commit()
-
-# def add_vectordbr_db(session, ttype, related_id):
-#     vectordbr = VectorDBRelated(ttype=ttype, related_id=related_id)
-#     session.add(vectordbr)
-#     session.commit()

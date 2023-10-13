@@ -1,5 +1,6 @@
 import streamlit as st
-from streamlit_chat import message
+# from streamlit_chat import message
+from st_chat_message import message
 from database import Index
 from init_databse import InitUtils
 import openai
@@ -39,13 +40,10 @@ def main():
 
             # call function
             method_args_dict = json.loads(method_args)
-            function_help = FunctionExcHelp(session=Session, 
-                                            method_name=method_name, 
-                                            method_args=method_args_dict,
-                                            indexdb=indexdb
-            )
             
-            method_result = function_help.run()
+            
+            method_result = available_functions[method_name](Session, indexdb, method_args_dict)
+            
 
             st.session_state['messages'].append(
                 {"role": "user", "content": method_result}

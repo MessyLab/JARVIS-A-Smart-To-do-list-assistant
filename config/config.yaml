@@ -1,6 +1,6 @@
 config:
   openai:
-    api_key: "repalce ypur openai api key"
+    api_key: "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"
     chat_model: "gpt-3.5-turbo-0613"
     temperature: 0.1
     embedding_model: "text-embedding-ada-002"
@@ -8,7 +8,7 @@ config:
 
   mysql_database:
     user_name: "root"
-    password: "repalce your local mysql password"
+    password: "123456"
     server: "127.0.0.1"
     dbname: "jarvis"
 
