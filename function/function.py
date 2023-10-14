@@ -199,3 +199,9 @@ function_list = [
         }
     },
 ]
+
+# class Function:
+#     def __init__(self) -> None:
+#         pass
+
+#     def _get_parameters(self, session, method_args, other_args):
