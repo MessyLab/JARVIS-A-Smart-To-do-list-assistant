@@ -36,3 +36,4 @@ The long term memory is stored by database.
 ## Legal
 
 JARVIS is MIT-licensed, refer to the [LICENSE file](LICENSE)
+
