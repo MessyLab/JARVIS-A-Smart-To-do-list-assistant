@@ -78,13 +78,15 @@ class FunctionProj:
     def update_project(self, session, indexdb, method_args_dict):
         
         project_name = method_args_dict["name"]
-        project_description = method_args_dict["description"]
-        des_arr = preprocess_content(project_description)
+       
+        
         index = indexdb.proj_n_index
         print(index)
         project_id = self.search_project_name(session, project_name, index)
         if project_id != -1:
             update_db_fucntion.update_project_db(session, project_id, **method_args_dict)
             
-            # proj_d_index 更新
+            # proj_d_index 
+            project_description = method_args_dict["description"]
+            des_arr = preprocess_content(project_description)
             indexdb.proj_d_index.update(project_id-1, des_arr)

@@ -38,8 +38,7 @@ class FunctionIdea:
     def update_idea(self, session, indexdb, method_args_dict ):
         previous_idea = method_args_dict["previous_idea"]
         new_idea = method_args_dict["new_idea"]
-        index = self.indexdb.idea_index,
-        
+        index = indexdb.idea_index
         previous_arr = preprocess_content(previous_idea)
         scores, idxs = self.__search_idea(previous_arr, index)
         print(scores)
